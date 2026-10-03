@@ -1,0 +1,62 @@
+{
+  "name": "dsh-launcher-link",
+  "version": "0.2.0",
+  "description": "Outbound authenticated WebSocket connection from each DSH instance to a launcher",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./transport": "./src/transport.js"
+  },
+  "files": [
+    "src",
+    "types",
+    "cordis.patch.yml",
+    "README.zh.md",
+    "PROTOCOL.zh.md",
+    "CHAT-PROTOCOL.zh.md",
+    "CHAT-INTEGRATION.zh.md",
+    "LAUNCHER-INTEGRATION.zh.md",
+    "VERIFICATION.zh.md",
+    "examples"
+  ],
+  "scripts": {
+    "check": "node --check src/index.js && node --check src/transport.js && node --check src/chat.js && node --check src/content.js && node --check examples/mock-launcher.mjs",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh": "0.2.0-rc.2",
+    "@deepseek-ai/cordis": "4.0.4"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh": {
+      "optional": true
+    },
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "dsh": {
+    "bundle": {
+      "patch": [
+        "./cordis.patch.yml"
+      ]
+    }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Loliyer520/dsh-launcher-link.git"
+  },
+  "homepage": "https://github.com/Loliyer520/dsh-launcher-link",
+  "bugs": {
+    "url": "https://github.com/Loliyer520/dsh-launcher-link/issues"
+  }
+}
