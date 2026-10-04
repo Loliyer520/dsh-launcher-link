@@ -7,7 +7,7 @@ const protocol = 'dsh.launcher.v1';
 const hash = value => createHash('sha256').update(value).digest();
 
 /** Local integration example, not a mobile gateway or a DSH process launcher. */
-export async function createMockLauncher({ token, port = 0, heartbeat = true, autoPing = false } = {}) {
+export async function createMockLauncher({ token, port = 0, heartbeat = true, autoPing = false, welcomeDelayMs = 0 } = {}) {
   if (typeof token !== 'string' || token.length < 16) throw new Error('Set a token of at least 16 characters');
   const instances = new Map();
   const connections = new Set();
@@ -41,7 +41,8 @@ export async function createMockLauncher({ token, port = 0, heartbeat = true, au
         instanceId = id;
         clearTimeout(handshake);
         instances.set(id, { socket: ws, info: message.instance, connectionId: message.connectionId });
-        send({ type: 'welcome', instanceId: id, connectionId: message.connectionId });
+        if(welcomeDelayMs)setTimeout(()=>{if(ws.readyState===1)send({ type: 'welcome', instanceId: id, connectionId: message.connectionId });},welcomeDelayMs);
+        else send({ type: 'welcome', instanceId: id, connectionId: message.connectionId });
         wss.emit('registered', instances.get(id));
         if (autoPing) send({ type: 'request', id: randomUUID(), method: 'system.ping', params: null });
         return;

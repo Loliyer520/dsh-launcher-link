@@ -127,6 +127,9 @@ export class LauncherLink extends EventEmitter {
         clearTimeout(this.handshakeTimer);
         this.attempt = 0;
         this.setState('ready');
+        // Methods may have been installed after hello while publish was disabled.
+        // Always reconcile the complete list after the welcome boundary.
+        this.publish('capabilities.changed', { methods: [...this.methods.keys()].sort() });
         this.startHeartbeat(socket);
         this.emit('ready', this.info());
         return;

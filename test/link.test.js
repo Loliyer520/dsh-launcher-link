@@ -88,7 +88,7 @@ test('missing subprotocol and mismatched welcome are terminal registration failu
 
 test('request execution, event forwarding, capability updates and safe errors', async t => {
   const { launcher, link } = await setup(t);
-  const changed = event(launcher.wss, 'frame', frame => frame.message.event === 'capabilities.changed');
+  const changed = event(launcher.wss, 'frame', frame => frame.message.event === 'capabilities.changed' && frame.message.data.methods.includes('example.echo'));
   const dispose = link.registerMethod('example.echo', (params, request) => {
     request.publish('example.progress', { requestId: request.requestId, instanceId: request.instanceId });
     return params;

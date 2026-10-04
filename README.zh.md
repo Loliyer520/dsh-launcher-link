@@ -17,7 +17,7 @@
 适配 DSH `0.2.0-rc.2`。在需要连接的每个 DSH profile 安装包：
 
 ```powershell
-dsh plugin --profile my-profile add 'file:C:/absolute/path/dsh-launcher-link-0.2.0.tgz'
+dsh plugin --profile my-profile add 'file:C:/absolute/path/dsh-launcher-link-0.2.8.tgz'
 ```
 
 启动器在创建每个 DSH 子进程时，单独注入以下环境变量。不要通过系统全局环境变量区分多个实例。

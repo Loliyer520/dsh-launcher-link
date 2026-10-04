@@ -1,6 +1,6 @@
 {
   "name": "dsh-launcher-link",
-  "version": "0.2.0",
+  "version": "0.2.8",
   "description": "Outbound authenticated WebSocket connection from each DSH instance to a launcher",
   "type": "module",
   "main": "./src/index.js",

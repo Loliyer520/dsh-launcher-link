@@ -1,4 +1,4 @@
-# DSH 会话与聊天协议 v1
+﻿# DSH 会话与聊天协议 v1
 
 沿用 `dsh.launcher.v1` 传输。所有方法调用指向指定实例；手机网关继续使用 `dsh.mobile.v1`，必须逐项开放下面的方法。插件版本 `0.2.0`。会话能力在 DSH 原生 `sessionController` 服务就绪后注册，普通 web/desktop profile 已提供此服务；未提供该服务的 profile 只声明基础连接能力。
 
@@ -72,3 +72,32 @@ opening.value 为原生 snapshot：header、cursor、records、hasMore、project
 严格检查字段和参数，不允许远程调用任意 service 方法。读取的 Payload 上限按 128 KiB 分流，分块固定不超过 48 KiB，外层 event/response 留足网关封装空间。业务错误保留受控原生错误码，内部异常不包含到网络返回值中。内容读取和补拉不驱动聊天；原生 follow 可激活持久会话，其行为与官方 UI 一致。
 
 端到端验证应包含：创建/重命名/分页、包含中文和 emoji 的超长内容 SHA-256 完整重组、native 思考/工具调用/结果结构保持、prompt 立即 ACK 与稳定业务 ID 去重、取消和队列动作、opening 与 live seq 连续、断线补拉、多实例与两个设备的订阅隔离，以及权限撤销时退订清理。测试使用隔离 DSH_HOME 和本机可控模型 provider，不调用用户真实模型或修改已有会话。
+
+
+## 0.2.1 扩展
+
+新增归档/恢复、分块文件上传、continued 问题回答与一次性权限审批。启动器及手机端的稳定方法、参数、能力、所有权和限额以启动器仓库 docs/mobile-protocol.zh.md 的 0.2.1 契约为准。审批只支持 allowed-once/rejected，不修改持久权限策略。
+
+## 0.2.2 队列附件保留
+
+新增 `session.queue.editText({sessionId,itemId,text,expectedContentHash})`，返回 `{accepted:true,itemId,contentHash}`。摘要算法和原生 inbox 结构详见启动器 docs/mobile-protocol.zh.md 的“队列内容与保留附件的文本编辑”。仅更改普通待处理用户消息的文字，通过原生 Inbox.replace 保留图片/文件引用及原 id/source。旧 session.queue.update 的 edit 遇到已有附件返回 QUEUE_ATTACHMENT_EDIT_REQUIRED，禁止无声丢附件。已在真实 DSH 0.2.0-rc.2 中验证混合内容编辑及实际消费；原生 updateQueue 本身仍是整体文本替换，未修改上游代码。
+
+## 0.2.3 文件读取与归档只读
+
+新增 file.download.begin/read/release：按普通会话日志证明 FileBlock 附件可达后调用原生 AttachmentStore.readFileStream；顺序字节 offset、最多48KiB一块、EOF才确认完整性、连接/实例隔离、五分钟空闲过期，最大1GiB和4个下载槽。所有字段、失效条件和手机暂存校验要求见启动器 docs/mobile-protocol.zh.md。归档 session.subscribe 返回 ARCHIVED_READ_ONLY，因为原生 follow 会在快照后激活冷 Agent；改用 get/page/events/projections 冷安全读取。真实临时 DSH 0.2.0-rc.2 已验证文件长度/原字节/SHA-256及冷归档读取不激活。
+
+
+连接插件 0.2.4 扩展既有 session.search：原生 current 索引跨会话搜索，可显式包含冷归档，返回真实匹配 seq、元数据、范围说明与私有分页游标；新增 session.search.cancel。以实例同时声明两个方法识别，openAt=never 不声明、不修改用户配置。完整参数、返回值、取消限制、跳转及证据见 docs/mobile-protocol.zh.md 的“跨会话索引搜索（连接插件 0.2.4）”（本文件位于 docs 时为同目录 mobile-protocol.zh.md）。
+
+
+0.2.5 新增 session.context：原生完整 surface 判定后返回固定 cut 的小原始事件窗口和前后读取位置，窗口外 replace 仍被考虑；冷归档不激活。宿主仍读取完整原生日志，cut 变化返回 CONTEXT_STALE。完整合同及证据见 mobile-protocol.zh.md 的“搜索命中上下文窗口”（插件目录文档对应仓库 docs/mobile-protocol.zh.md）。
+
+
+0.2.6 修复 hello→welcome 期间注册方法丢失能力通知的竞态：每次握手完成/重连补发完整 capabilities.changed，启动器同步方法快照。HTTPS instances/WSS ready 与真实 instance.info 一致性已通过非 fixture DSH 的 pinned 网络验证，见 docs/mobile-protocol.zh.md 和 output/mobile-capabilities-live-result.json；Flutter 本体联调由客户端单独验收。
+
+
+0.2.7 复用原生 WorkspaceRegistry 持久置顶和 WorkspaceEntity 手动排序：session.pin、workspace.list、workspace.insertSessionBefore；session.list 补 pinned/pinOrder/workspaceId/workspaceOrder，可选工作区 manual 排序。原生 pin 属于实例 registry 全局集合，归档移除 pin、pin 不自动恢复；原生 workspace domain 变化通知全客户端刷新。完整合同/边界/证据见 docs/mobile-protocol.zh.md 的“原生置顶与工作区手动排序”。
+
+### 0.2.8 原生标题变更通知
+
+原生 `session/title` 提交后广播 `session.list.changed`，数据为 `{sessionId, change:"updated", reason:"title", seq}`。覆盖手机重命名、桌面重命名和原生自动标题生成，不要求观察设备订阅该会话。收到通知后重新读取列表首页；旧分页快照保持稳定，不应继续旧游标来刷新标题。标题以新的 `session.list` 投影为准，通知不包含伪造标题。

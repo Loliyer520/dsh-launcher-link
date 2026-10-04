@@ -2,7 +2,7 @@
 
 DSH 后端连接插件。每个实例主动连接启动器，通过启动器统一接入手机客户端。
 
-版本 **0.2.0**，适配 DeepSeek Harness **0.2.0-rc.2**。
+版本 **0.2.8**，适配 DeepSeek Harness **0.2.0-rc.2**。
 
 支持会话列表、创建、重命名、分叉、模型选择、完整聊天历史、实时消息、停止生成、待发送队列编辑、图片附件读取和断线补拉。保留原生思考、工具调用与结果；超长内容通过 UTF-8 字节分块及 SHA-256 校验完整读取。
 
@@ -15,7 +15,7 @@ DSH 后端连接插件。每个实例主动连接启动器，通过启动器统�
 安装包见本仓库 Releases。安装后，从支持连接协议的 DSHL 启动目标实例。
 
 ```powershell
-dsh plugin --profile my-profile add 'file:C:/path/to/dsh-launcher-link-0.2.0.tgz'
+dsh plugin --profile my-profile add 'file:C:/path/to/dsh-launcher-link-0.2.8.tgz'
 ```
 
 聊天功能需要宿主提供 `sessionController`，标准 web/desktop profile 已包含该服务。仅 base bundle 的 profile 提供基础连接能力。手机 App 不在本插件内。

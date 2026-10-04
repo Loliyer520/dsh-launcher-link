@@ -1,4 +1,4 @@
-export const VERSION = '0.2.0';
+export const VERSION = '0.2.8';
 export const PROTOCOL = 'dsh.launcher.v1';
 
 export function resolveConfig(input = {}, env = process.env) {
